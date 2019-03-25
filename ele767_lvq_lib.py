@@ -26,7 +26,7 @@ class LVQ(object):
     def __init__(self, numEntrees = None, 
                 eta = 0.1, sortiePotentielle = None, 
                 epoche = 1, etaAdaptif = False, perf_VC = 0.75, 
-                VCin = None, VCout = None, fichier_lvq = None, k = 1):   
+                VCin = None, VCout = None, fichier_lvq = None, k = 10):   
 
         self.numEntrees = numEntrees
         print("# entrees ", self.numEntrees)
@@ -74,7 +74,7 @@ class LVQ(object):
         for k in range(self.k):
              for i, symbol in enumerate(self.sortiesPotentielle):
                  index = sorties.index(str(symbol))
-                 self.matriceRep[k*len(self.sortiesPotentielle) + i] = entrees[index]
+                 self.matriceRep[k*len(self.sortiesPotentielle) + i] = entrees[index][0:self.numEntrees]
                  #print(sorties)
                  del sorties[index]
                  entrees = np.delete(entrees, index, axis=0)
@@ -89,8 +89,7 @@ class LVQ(object):
         if type(entree[0]) is not list and type(entree[0]) is not np.ndarray: 
             entree = [entree]
             tailleEntree = len(entree)
-
-
+        entree = list(entree)
 
         if ajoutDeDonnees:
             entreeNoisy = self.ajoutDeBruit(entree)
@@ -109,8 +108,8 @@ class LVQ(object):
         if tailleEntree != tailleSortie:
             raise("len(entree) != len(sortieDesire) : Chaque entree doit avoir une sortie desire conrespondante ")
         for numEpoche , epoche in enumerate(range(self.epoche)): 
-            self.performance = np.append(self.performance, [0])
             print("epoche " ,self.totalNumEpoche)
+            self.performance = np.append(self.performance, [0])
             entree = permanantEntree 
             
             sortieDesire = permanantSortieDesire 
@@ -125,7 +124,7 @@ class LVQ(object):
                 sortieDesire = np.delete(sortieDesire,index,0)
                 
                 #Etape 1: Calcul distance 
-                minDist=  float("inf")
+                minDist =  float("inf")
                 minJ = 0
                 repPred = 0
                 for j in range(len(self.matriceRep)):
@@ -136,10 +135,8 @@ class LVQ(object):
                         repPred =  j % len(self.sortiesPotentielle) #Representant predit
                         repPred = self.sortiesPotentielle[repPred]
                 
-                #Etap 2 : Actualisation des poids
-
+                #Etap 2 : Mise a jour des representants
                 print(repPred, _sortieDesire)
-
                 if repPred == _sortieDesire: #Si ca correspond, on rapproche
                     self.matriceRep[minJ] = self.matriceRep[minJ] + self.eta * (_entree - self.matriceRep[minJ])
                     self.performance[self.totalNumEpoche] += 1
@@ -148,21 +145,25 @@ class LVQ(object):
                     self.matriceRep[minJ] = self.matriceRep[minJ] - self.eta * (_entree - self.matriceRep[minJ])
 
             #Fin de l'epoche
+            print("Fin de l'eopche")
 
             #Calucl de la performance avec les donnees de test et avec la validation croisee.
             self.performance[self.totalNumEpoche] = self.performance[self.totalNumEpoche]/tailleEntree
+            print("Calcul performance")
             if self.VCin is not None and self.VCout is not None:
                 perfVC = self.test(self.VCin, self.VCout)
                 self.performanceVC = np.append(self.performanceVC, [perfVC])
             if self.etaAdaptif:
                  self.eta = self.etaInit * 0.2 ** (self.totalNumEpoche)
                  print("Eta changed")
+            print("NumEpoche ++")
             self.totalNumEpoche += 1
+            print("NumEpoche ++ Done ")
 
-        print(self.performance[-1])
+        print("VC performance apres entrainement: ", self.performanceVC[-1])
 
 
-   
+
 
     def exporterLVQ(self, fichier):
         repertoire = os.path.dirname(fichier)
@@ -197,36 +198,37 @@ class LVQ(object):
         '''
         #Les neurones de la premiere couche cache vont prendre les entree du MLP comme entrees 
         #Etape 1 : Activation des Neurons
-        MLP_out = np.empty((0,self.numSorties), int)
+        print("Starting Test")
+        LVQ_out = np.array([])
+
         if type(entrees[0]) is not list and type(entrees[0]) is not np.ndarray:
             entrees = [entrees]
             tailleEntree = len(entrees)
+        else:
+            entrees = list(entrees)
 
-        if type(sortieDesire[0]) is not list and type(sortieDesire[0]) is not np.ndarray:
-            sortieDesire = [sortieDesire]
-            tailleSortie = len(sortieDesire)
         resultats = []
         performance = 0
         for i, entree in enumerate(entrees):
-            #print("Test Sortie Desire: " + str(i)+ " : "+ str(sortieDesire[i]))
-            x = entree[0:self.numEntrees]
-            for (j,couche) in enumerate(self.couches):
-                couche.setEntrees(x)
-                couche.calculSorties()
-                x = np.array(couche.sorties)
-            #print(MLP_out)
-            nn_output = self.softmax(self.couches[-1].getSortie())
-            print(MLP_out.size)
-            print(nn_output.size)
+            minDist  = float("inf")
 
-            MLP_out = np.append(MLP_out,[nn_output], axis=0) 
-            print(MLP_out[-1].size)
+            for j in range(len(self.matriceRep)):
+                dist = distance.euclidean(entree[0:self.numEntrees], self.matriceRep[j])
+                if minDist > dist:
+                    minDist = dist
+                    minJ = j
+                    prediction =  j % len(self.sortiesPotentielle) #Representant predit
+                    prediction = self.sortiesPotentielle[prediction]
+                #print(prediction, sortieDesire[i])
+
+            LVQ_out = np.append(LVQ_out,[prediction], axis=0) 
 
             #resultats.append(MLP_out)
             if sortieDesire != None:
-                if (MLP_out[-1] == sortieDesire[i]).all():
+                if prediction == sortieDesire[i]:
                     performance += 1
-        return MLP_out, performance/len(entrees)
+        print("Fin du Test")
+        return LVQ_out, performance/len(entrees)
 
     def getMeilleurSortie(self, sortie):
         meilleurSortie = 0
@@ -272,10 +274,18 @@ def getES(fichier):
 
 if __name__ == "__main__":
     sortiesPotentielle = ["o","1", "2", "3", "4", "5","6", "7","8","9"]
-    lvq = LVQ(numEntrees=1560, k = 10, sortiePotentielle=sortiesPotentielle,epoche=2)
     entreeIn, entreeOut = getES("data/data_train.txt")
+    VCin, VCout = getES("data/data_vc.txt")
+
+    lvq = LVQ(numEntrees=40*26, k = 100, sortiePotentielle=sortiesPotentielle,epoche=1, VCin=VCin, VCout=VCout)
+
+    print(entreeOut)
     print(len(entreeIn), len(entreeOut))
     lvq.entraine(entree=entreeIn, sortieDesire=entreeOut)
     print("performance :", lvq.performance )
+
+    print("starting TEST")
+    _, perf = lvq.test(entreeIn, sortieDesire = entreeOut)
+    print(perf)
     
-    print(lvq.matriceRep)
+    #print(lvq.matriceRep)

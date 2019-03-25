@@ -6,10 +6,11 @@ from werkzeug.utils import secure_filename
 import os
 import numpy as np
 
-from ele767_mlp_lib import MLP
+from ele767_lvq_lib import LVQ
 import webbrowser
 import configparser
 import time
+import traceback
 
 #######################################################
 ##  Fichier : main.py
@@ -21,10 +22,13 @@ import time
 #######################################################
 
 
+app = Flask(__name__)
+app.lvq = None
 #Ouvre l'interface 
+'''
 def create_app():
     app = Flask(__name__)
-    app.mlp = None
+    app.lvq = None
     time.sleep(1)  #Attendre. Pour ne pas ouvrir l'interface 2 fois
     def run_on_start(*args, **argv):
         url = "http://localhost:5000"
@@ -32,24 +36,24 @@ def create_app():
         print("opening the webbrowser")
     run_on_start()
     return app
-app = create_app() 
+app = create_app()  '''
  
 UPLOAD_FOLDER = 'UPLOAD_FOLDER'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-def getES(fichier, sortiesDesire):
+
+def getES(fichier):
     f = open(fichier, 'r')
     data = f.read()
     datas = data.split("\n")
     nb_data = len(datas)
-    print(sortiesDesire)
-    sorties = [sortiesDesire[datas[i].split(":")[0]] for i in range(nb_data)]
+    sorties = [datas[i].split(":")[0] for i in range(nb_data)]
     entrees = [(datas[i].split(":")[1]).split(" ") for i in range(nb_data)]
     entrees = [list(filter(None, entree)) for entree in entrees]
     entrees = np.array(entrees)
     entrees = entrees.astype(float)
-    
+
     return entrees, sorties
 
 @app.route('/')
@@ -63,7 +67,7 @@ def home():
         fct= None
         error = None
         sorties_potentielles = None
-        app.mlp = None
+        app.lvq = None
         
     
         config = configparser.ConfigParser()
@@ -72,13 +76,10 @@ def home():
         nb_epoche = config['DEFAULT']['nb_epoches']
         db = config['DEFAULT']['base_de_donnees']
         eta = config['DEFAULT']['eta']
-        fct = config['DEFAULT']['fct']
-        n_p_cc = config['DEFAULT']['neurones_par_couche_cachee']
-        sorties_potentielles = config['DEFAULT']['sorties_potentielles']
-
+        classe_sortie = config['DEFAULT']['classe_sortie']
         return render_template("index.html", nb_epoche=nb_epoche, db=str(db), 
-                                eta=str(eta), n_p_cc = str(n_p_cc), 
-                                fct=fct, error=error, sorties_potentielles=str(sorties_potentielles))
+                                eta=str(eta), error=error, 
+                                sorties_potentielles=str(classe_sortie))
     else:
         return "GOT POST REQUETST"
 
@@ -112,74 +113,76 @@ def startTraining():
             #Ensuite, on separe tout nos données de la requete
             print(request.form['eta'])
             eta =  float(request.form['eta'])
-            fct = request.form["fct"]
-            n_p_cc =  eval("[" + request.form['n_p_cc'] + "]")
             db = int(request.form['db'])
             nb_epoche = int(request.form['nb_epoche'])
             sorties_desire = request.form['sortiesDes']
             ajoutBruit = request.form['ajoutBruit']
             etaAdaptif = request.form['etaAdaptif']
             print(sorties_desire)
-            sorties_desire = eval("{" + sorties_desire + "}")
+            sorties_desire = sorties_desire.replace(" ", "").split(",") # On convertit 'o', '1' ,'2' --> ['o', '1', '2']
 
-            nb_sorties = len(list(sorties_desire.values())[0])
             nb_entrees = db * 26
             
-            if app.mlp == None:
-                print("NEW MLP")
+            if app.lvq == None:
+                print("NEW lvq")
                 if etaAdaptif == "True":
                     etaAdaptif = True
                 else:
                     etaAdaptif = False
 
-                app.mlp = MLP(nb_entrees,nb_sorties, neuronesParCC = n_p_cc, eta = eta, sortiePotentielle = sorties_desire, 
-                            epoche = 1, etaAdaptif=etaAdaptif)
-            trainInput, trainOutput = getES(dataTrainFile, sortiesDesire=sorties_desire)
+                app.lvq = LVQ(nb_entrees, eta = eta, sortiePotentielle = sorties_desire, 
+                            epoche = 1, etaAdaptif=etaAdaptif, k=100)
+                print("LVQ cree")
+            trainInput, trainOutput = getES(dataTrainFile)
 
             boolAjoutBruit = False
             if ajoutBruit == "True":
                 boolAjoutBruit = True
-            app.mlp.entraine(trainInput, trainOutput, boolAjoutBruit)
-            
+            app.lvq.entraine(trainInput, trainOutput, boolAjoutBruit)
+            print("training DONE")
+
             if dataVCFile is not None:
-                vcIn, vcOut = getES(dataVCFile, sortiesDesire=sorties_desire)
-                _, vcPerf = app.mlp.test(vcIn, sortieDesire =  vcOut)
+                print("Starting VC")
+
+                vcIn, vcOut = getES(dataVCFile)
+                _, vcPerf = app.lvq.test(vcIn, sortieDesire =  vcOut)
                 status["vcDataPerf"] = vcPerf
 
             status["status"] = "OK"
-            status["trainDataPerf"] = app.mlp.performance[-1]
-            status["eta"] = app.mlp.eta
+            status["trainDataPerf"] = app.lvq.performance[-1]
+            status["eta"] = app.lvq.eta
 
     except Exception as e:
         status["status"] = "FAIL"
+
+    traceback.print_exc()
     
     return json.dumps(status)
 
-@app.route('/open_mlp',methods=['POST'])
-def openMLP():
-    #Cette fonction gere l'ouverture d'un MLP existant
+@app.route('/open_lvq',methods=['POST'])
+def openLVQ():
+    #Cette fonction gere l'ouverture d'un lvq existant
     if request.method == "POST":
         print(request.files)
         status = {}
         status["status"] = "OK"
 
         try:
-            if 'mlpFile' in request.files:
-                file = request.files["mlpFile"]
+            if 'lvqFile' in request.files:
+                file = request.files["lvqFile"]
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                mlpFile = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                lvqFile = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
-                app.mlp = MLP(fichier_mlp=mlpFile)
+                app.lvq = LVQ(fichier_lvq=lvqFile)
                 sortiesPotentielle = ""
-                for key, val in app.mlp.sortiesPotentielle.items():
+                for key, val in app.lvq.sortiesPotentielle.items():
                     print("'"+key + "'" + ":" + str(val) + "\n")
                     sortiesPotentielle += ("'"+key + "'" + ":" + str(val) + ",\n")
                 status["sortiesPotentielle"] = sortiesPotentielle
-                print("numEntrees ", app.mlp.numEntrees )
-                status["db"] = app.mlp.numEntrees / 26
-                status["eta"] = app.mlp.eta
-                status["neuronesParCC"] = app.mlp.neuronesParCC
+                print("numEntrees ", app.lvq.numEntrees )
+                status["db"] = app.lvq.numEntrees / 26
+                status["eta"] = app.lvq.eta
             
             print("Done" + sortiesPotentielle)
         except Exception as e:
@@ -188,20 +191,20 @@ def openMLP():
 
         return json.dumps(status)
 
-@app.route('/save_mlp',methods=['POST'])
-def saveMLP():
-    #Cette fonction gere le sauvgard d'un MLP
+@app.route('/save_lvq',methods=['POST'])
+def saveLVQ():
+    #Cette fonction gere le sauvgard d'un lvq
     if request.method == "POST":
         print(request.form)
-        fileOut = os.path.join("mlps_sauvgarde", request.form["outputFile"] + ".txt")
+        fileOut = os.path.join("lvqs_sauvgarde", request.form["outputFile"] + ".txt")
         status = {}
 
-        if app.mlp is None:
-            status["status"] = "Aucun MLP ouvert"
+        if app.lvq is None:
+            status["status"] = "Aucun lvq ouvert"
             return json.dumps(status)
 
         try:
-            app.mlp.exporterMLP(fileOut)
+            app.lvq.exporterLVQ(fileOut)
             status["status"] = "Fini : \n\tSauvgardé sous le nom: \n\t "+fileOut
 
         except Exception as e:
@@ -211,49 +214,50 @@ def saveMLP():
         return json.dumps(status)
 
 
-@app.route('/test_mlp',methods=['POST'])
-def testMLP():
+@app.route('/test_lvq',methods=['POST'])
+def testLVQ():
     if request.method == "POST":
         print(request.files)
         status = {}
 
         #Nous allons premierement prendre les fichiers d'entrainement et de validation croisé. 
-        if 'mlpTestFile' in request.files:
-            file = request.files["mlpTestFile"]
+        if 'lvqTestFile' in request.files:
+            file = request.files["lvqTestFile"]
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             dataTestFile = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            if app.mlp is None:
-                status["status"] = "Aucun MLP ouvert"
+            if app.lvq is None:
+                status["status"] = "Aucun LVQ ouvert"
                 return json.dumps(status)
-            try:
                 
+            try:
+                print("STARTING TEST")
+
                 print(dataTestFile)
                 testOut  = np.empty((0,1), int)
-                testIn , testOutDes = getES(dataTestFile, sortiesDesire=app.mlp.sortiesPotentielle)
-                #print("Test OUT:")
+                testIn , testOutDes = getES(dataTestFile)
+                print("STARTING TEST")
                 #print(testOutDes)
-                mlp_out, perf = app.mlp.test(testIn, sortieDesire = testOutDes)
-                print("MLP_OUT")
-                print(mlp_out)
-                #print(app.mlp.sortiesPotentielle)
-                mlp_out = mlp_out.astype(int)
-                sortPotInv = dict([[str(v),k] for k,v in app.mlp.sortiesPotentielle.items()])
+                lvq_out, perf = app.lvq.test(testIn, sortieDesire = testOutDes)
+                print("lvq_OUT")
+                print(lvq_out)
+                #print(app.lvq.sortiesPotentielle)
+                #lvq_out = lvq_out.astype(int)
+                #sortPotInv = dict([[str(v),k] for k,v in app.lvq.sortiesPotentielle.items()])
                 #print(sortPotInv)
-                print(len(mlp_out))
-                for i in range(len(mlp_out)):
-                    print("OUTPUT", sortPotInv[str(list(mlp_out[i]))])
-                    testOut = np.append(testOut, ["Echantillon " + str(i) + " : " + sortPotInv[str(list(mlp_out[i]))]])
+                print(len(lvq_out))
+                for i in range(len(lvq_out)):
+                    print("OUTPUT", lvq_out[i])
+                    testOut = np.append(testOut, ["Echantillon " + str(i) + " : " + lvq_out[i]])
                 #print(testOut)
 
                 status["status"] = "Fin du test"
-                status["mlp_out"] = str(np.vstack(testOut))
+                status["lvq_out"] = str(np.vstack(testOut))
                 print(perf)
                 status["perf"] = perf
             except Exception as e:
                 status["status"] = "ERREUR"
                 print(e)
-
  
     return json.dumps(status)
 

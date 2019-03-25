@@ -1,6 +1,5 @@
 
 import numpy as np
-from profilestats import profile
 
 class FonctionsActivation(object):
 

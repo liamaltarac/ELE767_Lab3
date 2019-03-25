@@ -7,7 +7,7 @@
 	<meta charset="UTF-8">
 
 	<title>
-		Lab 1: MLP {{test}}
+		Lab 1: LVQ {{test}}
 	</title>
 
 
@@ -74,7 +74,7 @@
 	<div class="container " style="overflow: hidden;">
 
 		<div id="intro">
-			<h1 class="navbar-text"> Lab 1: MLP <small>par G. Cavero , L. Frija, S. Mohammed</small> </h1>
+			<h1 class="navbar-text"> Lab 3: LVQ <small>par G. Cavero , L. Frija, S. Mohammed</small> </h1>
 		</div>
 		<!--<div id="projectContainer" class="row"> -->
 		<div id="flexBox" class="row d-flex flex-row">
@@ -89,18 +89,16 @@
 									<h3>Entrainer </h3>
 								</div>
 
-
-
 								<div class=" col-sm-8" style="text-align:end">
 
-											<label for="open-mlp">
-													<span class="fa fa-folder-open pr-3" style = "cursor: pointer;" title="Ouvrir un MLP"></span>
+											<label for="open-lvq">
+													<span class="fa fa-folder-open pr-3" style = "cursor: pointer;" title="Ouvrir un LVQ"></span>
 												</label>
 									
-											<input id="open-mlp" type="file" style = "display : none;"/>
+											<input id="open-lvq" type="file" style = "display : none;"/>
 
-											<label for="save-mlp">
-													<span class="fa fa-floppy-o pr-3" style = "cursor: pointer;" onclick="SaveMLP()"  title="Ouvrir un MLP"></span>
+											<label for="save-lvq">
+													<span class="fa fa-floppy-o pr-3" style = "cursor: pointer;" onclick="SaveLVQ()"  title="Ouvrir un LVQ"></span>
 												</label>
 									
 
@@ -120,45 +118,16 @@
 									<input id="dataVC" name="dataVC" type=file class="form-control form-control-sm">
 								</div>
 							</div>
+
 							<div id = "numericalDataDiv" class=" form-group row" >
-								<div id = "etaDiv" class="col-sm-2  pr-1">
+								<div id = "etaDiv" class="col-sm-2 ">
 									<label for="eta">&#x3B7;:</label>
 									<input id="eta" name="eta" type=number class="form-control form-control-sm", step="0.00001">
 								</div>
 
-								<div id = "n_p_ccDiv" class="col-sm-4 pl-1 pr-1">
-									<label for="n_p_cc"> Neurones/CC <a href="#" class="fa fa-question-circle"
-											data-toggle="tooltip" data-placement="top" data-html="true"
-											title="Specifier le nb de neurones par couche cachées. <br> Ex.: 50, 30,100 (separé par une virgule !) ">
-										</a> :</label>
-									<input id="n_p_cc" name="n_p_cc" type=text class="form-control form-control-sm" value={{n_p_cc|default('NONE')}}>
 
-									<script>
-										$(document).ready(function () {
-											$('[data-toggle="tooltip"]').tooltip();
-										});
-									</script>
-
-								</div>
-
-
-								<div id = "fct_actDiv" class="col-sm-5 pl-1 ">
-									<label for="fct">Fct d'activation:</label>
-									<select id="fct" name="fct" class="form-control form-control-sm" >
-										<option value="Sigmoid">Sigmoid</option>
-										<option value="Tanh">Tanh</option>
-										<option value="Sinus">Sinus</option>
-										<option value="RELU">RELU</option>
-										<option value="LeakyRELU">LeakyRELU</option>
-
-									</select>
-									<script>
-										document.getElementById("fct").value = "{{fct|default('NONE')}}"
-										</script>
-								</div>
-
-								<div id = "dbDiv" class="col-sm-4 pr-1 pt-3 ">
-									<label for="db">Base de donnée:</label>
+								<div id = "dbDiv" class="col-sm-4  ">
+									<label for="db">Set de donnée:</label>
 									<select id="db" name="db" class="form-control form-control-sm">
 										<option value="40">40</option>
 										<option value="50">50</option>
@@ -169,14 +138,14 @@
 											</script>
 								</div>
 
-								<div id="numEpocheDiv"" class="col-sm-3 pr-1 pt-3 ">
+								<div id="numEpocheDiv"" class="col-sm-3">
 									<label for="nb_epoche">Nb d'époches:</label>
 									<input id="nb_epoche" name="nb_epoche" type=number value = {{nb_epoche|default('NONE')}}
 										class="form-control form-control-sm">
-
 								</div>
-								<div id="numEpocheDiv"" class="col-sm-4 pr-1 pt-3 ">
-								<label for="sorties_potentiels">Sorties Potentiels:</label>
+								
+								<div id="numEpocheDiv"" class="col-sm-3 ">
+								<label for="sorties_potentiels">Classe Sort.:</label>
 								<button id = "sorties_potentiels" type="button" class="btn-sm btn-info form-control form-control-sm" data-toggle="modal" data-target="#myModal">Modifier</button>
 
 									<!-- Modal -->
@@ -348,11 +317,11 @@
 					$('#formTest').submit(function(event) {
 							event.preventDefault();
 						
-							TestMLP();
+							TestLVQ();
 
 
 					});
-					function TestMLP(){
+					function TestLVQ(){
 
 
 
@@ -360,7 +329,7 @@
 					file = 	document.getElementById('dataTest').files[0];
 					var file_data = $("#dataTest").prop("files")[0];
 					console.log(file_data)
-    			form_data.append('mlpTestFile', file_data);
+    			form_data.append('lvqTestFile', file_data);
 
 					console.log(form_data);
 
@@ -369,7 +338,7 @@
 
 							$.ajax({
 															type: 'POST',
-															url: '/test_mlp',
+															url: '/test_lvq',
 															data: form_data,
 															contentType: false, 
 															processData: false,
@@ -378,11 +347,11 @@
 																console.log(response)
 																responseDict = JSON.parse(response);
 																status = responseDict["status"]
-																mlp_out = responseDict["mlp_out"]
+																lvq_out = responseDict["lvq_out"]
 																perf =responseDict["perf"]
 																if (status == "Fin du test"){
 																	document.getElementById("messageBox").value = status;
-																	document.getElementById("messageBox").value += "Resultats:\n"+mlp_out;
+																	document.getElementById("messageBox").value += "Resultats:\n"+lvq_out;
 																	document.getElementById("messageBox").value += "\n\nPerformance:"+perf;
 
 																	var textarea = document.getElementById('messageBox');
@@ -415,7 +384,7 @@
 						var ajoutBruit;
 					var epocheCounter = 0;
 
-					function TrainMLP(){
+					function TrainLVQ(){
 
 
 							var form = $('#formTrain')[0];
@@ -494,8 +463,6 @@
 							data_entrain = document.getElementById('dataTrain').value;
 							data_vc = document.getElementById('dataVC').value;
 							eta= document.getElementById('eta').value;
-							n_p_cc =  document.getElementById('n_p_cc').value;
-							fct = document.getElementById('fct').value;
 							db = document.getElementById('db').value;
 							nb_epoche = document.getElementById('nb_epoche').value;
 							s_des = document.getElementById("sortiesDes").value;
@@ -509,7 +476,7 @@
 							board = JXG.JSXGraph.initBoard('jxgbox', {boundingbox:  [-1, 1.1, parseInt(nb_epoche), -0.1], 
 																												axis:true, grid:true, showNavigation:false , showCopyright:false });
 
-							TrainMLP();
+							TrainLVQ();
 							});
 
 						function Plot(nb_epoche, performance){
@@ -521,7 +488,7 @@
   								board.create('curve', [epocheArray, vcPerf], {dash:0, strokeColor:'red',strokeWidth:2});
 
 								if (epocheCounter < nb_epoche-1){
-									TrainMLP();
+									TrainLVQ();
 									epocheCounter++;
 
 								}
@@ -534,7 +501,7 @@
 							}
 
 
-						$('#open-mlp').on('change', function (event) {
+						$('#open-lvq').on('change', function (event) {
 
 								event.preventDefault();
 
@@ -543,12 +510,12 @@
 
 								//document.getElementById("messageBox").value = " "
 
-								OpenMLP();
+								OpenLVQ();
 								});
 
 
 				
-								$('#save-mlp').on('change', function (event) {
+								$('#save-lvq').on('change', function (event) {
 
 									event.preventDefault();
 
@@ -557,15 +524,15 @@
 
 									//document.getElementById("messageBox").value = " "
 
-									SaveMLP();
+									SaveLVQ();
 									});
 
 
-				function OpenMLP(){
+				function OpenLVQ(){
 					var form_data = new FormData();
-					file = 	document.getElementById('open-mlp').files[0];
-					var file_data = $("#open-mlp").prop("files")[0];
-    			form_data.append('mlpFile', file_data);
+					file = 	document.getElementById('open-lvq').files[0];
+					var file_data = $("#open-lvq").prop("files")[0];
+    			form_data.append('lvqFile', file_data);
 
 					console.log(form_data);
 
@@ -573,7 +540,7 @@
 
 					$.ajax({
 															type: 'POST',
-															url: '/open_mlp',
+															url: '/open_lvq',
 															data: form_data,
 															contentType: false, 
 															processData: false,
@@ -610,11 +577,11 @@
 				}
 
 
-				function SaveMLP(){
+				function SaveLVQ(){
 
 							var file_name = 0;
 							while(!file_name){
-								file_name = prompt("Veuillez specifier le nom du fichier de sauvgarde ", "mlpOut");
+								file_name = prompt("Veuillez specifier le nom du fichier de sauvgarde ", "lvqOut");
 						};
 				
 
@@ -628,7 +595,7 @@
 
 					$.ajax({
 															type: 'POST',
-															url: '/save_mlp',
+															url: '/save_lvq',
 															data: form_data,
 															contentType: false, 
 															processData: false,
