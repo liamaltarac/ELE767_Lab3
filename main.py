@@ -42,7 +42,6 @@ UPLOAD_FOLDER = 'UPLOAD_FOLDER'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-
 def getES(fichier):
     f = open(fichier, 'r')
     data = f.read()
@@ -53,6 +52,12 @@ def getES(fichier):
     entrees = [list(filter(None, entree)) for entree in entrees]
     entrees = np.array(entrees)
     entrees = entrees.astype(float)
+    print("Split entrees")
+    for i,entree in enumerate(entrees):
+        print(len(entrees[i]))
+        e = (np.split(entree, 26))
+        print(e)
+        entrees[i] = np.concatenate(e)
 
     return entrees, sorties
 
@@ -121,7 +126,7 @@ def startTraining():
             print(sorties_desire)
             sorties_desire = sorties_desire.replace(" ", "").split(",") # On convertit 'o', '1' ,'2' --> ['o', '1', '2']
 
-            nb_entrees = db * 26
+            nb_entrees = db #* 26
             
             if app.lvq == None:
                 print("NEW lvq")
@@ -131,14 +136,15 @@ def startTraining():
                     etaAdaptif = False
 
                 app.lvq = LVQ(nb_entrees, eta = eta, sortiePotentielle = sorties_desire, 
-                            epoche = 1, etaAdaptif=etaAdaptif, k=100)
+                            epoche = 1, etaAdaptif=etaAdaptif, k=10)
                 print("LVQ cree")
             trainInput, trainOutput = getES(dataTrainFile)
+            print("Got train In")
 
             boolAjoutBruit = False
             if ajoutBruit == "True":
                 boolAjoutBruit = True
-            app.lvq.entraine(trainInput, trainOutput, boolAjoutBruit)
+            app.lvq.entraine(trainInput, trainOutput)
             print("training DONE")
 
             if dataVCFile is not None:
