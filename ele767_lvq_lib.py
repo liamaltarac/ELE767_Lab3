@@ -52,10 +52,48 @@ class LVQ(object):
         
         self.totalNumEpoche = 0
         print("num Entrees = ", numEntrees)
-        self.matriceRep = np.empty((k*len(self.sortiesPotentielle), numEntrees))
+
         self.k = k
 
-        self.creerProto(fichierReps)
+        if fichier_lvq is not None:
+            seuilsArray = []
+            with open(fichier_lvq,'r') as f:
+                data = f.read().replace(" ", "").lower()  #On enleve tout les espaces pour eviter d'avoir une erreur
+
+            for line in data.split("\n"):
+                if len(line) > 1:
+                    #print("Part 1 ", line)
+
+                    key = line.split("=")[0]
+
+                    value = line.split("=")[1]
+                    #print(key)
+                    if key == "k":
+                        self.k = eval(value)
+                        print("K = ", k)
+                    elif key == "eta":
+                        self.eta = eval(value)
+                        self.etaInit = self.eta
+                        print("eta = ", eta)
+
+                    elif key == "nb_entrees":
+                        numEntrees = int(value)
+                        self.numEntrees = numEntrees
+                        print(numEntrees)
+
+                    elif key == "sortiespotentielles": 
+                        self.sortiesPotentielle = eval(value)
+                        print("s_Pot = ",self.sortiesPotentielle)
+                    elif key == "matrice_de_representants":
+                        self.matriceRep = np.fromstring(value,dtype=np.float64, sep=",").reshape(self.k * len(self.sortiesPotentielle), self.numEntrees)
+                        print("m_rep = ", self.matriceRep)
+        else:
+            self.matriceRep = np.empty((k*len(self.sortiesPotentielle), numEntrees))
+            self.creerProto(fichierReps)
+        
+        self.maxEpoch = 20
+
+        
 
 
     def creerProto(self, fichier):
@@ -164,7 +202,7 @@ class LVQ(object):
                 perfVC = self.test(self.VCin, self.VCout)
                 self.performanceVC = np.append(self.performanceVC, [perfVC])
             if self.etaAdaptif:
-                 self.eta = self.etaInit * 0.2 ** (self.totalNumEpoche)
+                 self.eta = self.etaInit * (1 - (self.totalNumEpoche/self.maxEpoch))
                  print("Eta changed")
             print("NumEpoche ++")
             self.totalNumEpoche += 1
@@ -175,23 +213,20 @@ class LVQ(object):
 
 
     def exporterLVQ(self, fichier):
+        print("EXPORTING !!" )
         repertoire = os.path.dirname(fichier)
         if not os.path.exists(repertoire):
             os.makedirs(repertoire)
         f=open(fichier, "w+")
-        f.write("Nb_neurones_par_CC= %s\n" % (str(self.neuronesParCC)))
         f.write("Nb_entrees= %d\n" % (self.numEntrees))
-        f.write("Nb_sorties= %d\n" % (self.numSorties))
+        f.write("k= %s\n" % (str(self.k)))
+        f.write("eta= %s" % (str(self.etaInit)))
         f.write("sortiesPotentielles= %s\n" % (str(self.sortiesPotentielle)))
-    
+        np.set_printoptions(threshold = np.prod(self.matriceRep.shape))
+        f.write("matrice_de_representants= %s\n" % (np.array2string(self.matriceRep.ravel(), separator = ",").replace("\n", " ").replace("[","").replace("]", "")))
+        #print(str(self.matriceRep.ravel()))
+        np.set_printoptions(threshold = 1000)
 
-        for i, couche in enumerate(self.couches):
-            #f.write("couche #%d \n" % (i))
-            f.write("S(%d) = %s \n" % (i, str(list(couche.seuils))))
-            #f.write("Neurone#%d \n" % (neurone))
-            for src in range(np.shape(couche.poids)[0]):
-                for dst in range(np.shape(couche.poids)[1]):
-                    f.write("W(%d,%d,%d) =%s \n" % (i,src,dst,str(couche.poids[src ,dst])))
         f.close()
     
 
@@ -288,12 +323,15 @@ if __name__ == "__main__":
     entreeIn, entreeOut = getES("data/data_train.txt")
     VCin, VCout = getES("data/data_vc.txt")
     print(VCin)
-
-    lvq = LVQ(numEntrees=26*60, k = 21, sortiePotentielle=sortiesPotentielle,epoche=5, eta=0.1, fichierReps = "data/data_train.txt")
+    k = 21
+    lvq = LVQ(numEntrees=26*60, k = k, sortiePotentielle=sortiesPotentielle,epoche=5, eta=0.1, fichierReps = "data/data_train.txt")
 
     #print(entreeOut)
     print(len(VCin), len(VCout))
-    lvq.entraine(entree=entreeIn, sortieDesire=entreeOut, varierEta=True, ajoutDeDonnees=True)
+    lvq.entraine(entree=entreeIn[:k*10], sortieDesire=entreeOut[:k*10], varierEta=True, ajoutDeDonnees=True)
+    lvq.entraine(entree=entreeIn[:k*10], sortieDesire=entreeOut[:k*10], varierEta=True, ajoutDeDonnees=True)
+
+    lvq.entraine(entree=entreeIn[k*10:], sortieDesire=entreeOut[k*10:], varierEta=True, ajoutDeDonnees=True)
 
 
     print("performance :", lvq.performance )

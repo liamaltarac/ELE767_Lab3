@@ -96,9 +96,8 @@
 												</label>
 									
 											<input id="open-lvq" type="file" style = "display : none;"/>
-
 											<label for="save-lvq">
-													<span class="fa fa-floppy-o pr-3" style = "cursor: pointer;" onclick="SaveLVQ()"  title="Ouvrir un LVQ"></span>
+													<span class="fa fa-floppy-o pr-3" style = "cursor: pointer;" onclick="SaveLVQ()"  title="Sauvegarder un LVQ"></span>
 												</label>
 									
 
@@ -169,8 +168,21 @@
 										</div>
 									</div>
 							</div>
+							<label class="form-check-label" for="k" >
+									k
+								</label>
+							<div class="form-row align-items-baseline">
+									<div class="col-sm-2 ">
 
-							<div class="form-row align-items-center">
+											<div class="col-auto-1 mb-2 pr-2" style = " border-right: 1px dashed #333;">
+				
+													<input id="k" name="k" type=number class="form-control form-control-sm", step="1">
+													<script>
+															document.getElementById("k").value = "{{k|default('NONE')}}"
+															</script>
+											</div>
+										</div>
+
 							<div class="col-auto">
 									<div class="form-check mb-2 pr-2 " style = " border-right: 1px dashed #333;">
 
@@ -553,21 +565,12 @@
 																	document.getElementById("sortiesDes").value = responseDict["sortiesPotentielle"]
 																	document.getElementById("eta").value = responseDict["eta"]
 																	document.getElementById("db").value = responseDict["db"]
-																	document.getElementById("n_p_cc").value = responseDict["neuronesParCC"]
-																	if(responseDict["fonctionActivation"] === "sinus"){
-																		document.getElementById("fct").value = "Sin"
-																	}
-																	else if(responseDict["fonctionActivation"] === "tanh"){
-																		document.getElementById("fct").value = "Tanh"
-																	}
-																	else if(responseDict["fonctionActivation"] === "sigmoid"){
-																		document.getElementById("fct").value = "Sigmoid"
-																	}
+																	document.getElementById("k").value = responseDict["k"]
+
 																	document.getElementById("messageBox").value += "\tComplété";
 															}
 															else{
 																document.getElementById("messageBox").value += "\tERREUR";
-
 															}
 
 																}

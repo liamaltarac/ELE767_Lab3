@@ -49,15 +49,10 @@ def getES(fichier):
     nb_data = len(datas)
     sorties = [datas[i].split(":")[0] for i in range(nb_data)]
     entrees = [(datas[i].split(":")[1]).split(" ") for i in range(nb_data)]
+    print(len(entrees))
     entrees = [list(filter(None, entree)) for entree in entrees]
     entrees = np.array(entrees)
     entrees = entrees.astype(float)
-    print("Split entrees")
-    for i,entree in enumerate(entrees):
-        print(len(entrees[i]))
-        e = (np.split(entree, 26))
-        print(e)
-        entrees[i] = np.concatenate(e)
 
     return entrees, sorties
 
@@ -123,11 +118,13 @@ def startTraining():
             sorties_desire = request.form['sortiesDes']
             ajoutBruit = request.form['ajoutBruit']
             etaAdaptif = request.form['etaAdaptif']
+            k = int(request.form['k'])
             print(sorties_desire)
             sorties_desire = sorties_desire.replace(" ", "").split(",") # On convertit 'o', '1' ,'2' --> ['o', '1', '2']
 
-            nb_entrees = db #* 26
-            
+            nb_entrees = db * 26
+            trainInput, trainOutput = getES(dataTrainFile)
+
             if app.lvq == None:
                 print("NEW lvq")
                 if etaAdaptif == "True":
@@ -136,15 +133,17 @@ def startTraining():
                     etaAdaptif = False
 
                 app.lvq = LVQ(nb_entrees, eta = eta, sortiePotentielle = sorties_desire, 
-                            epoche = 1, etaAdaptif=etaAdaptif, k=10)
+                            epoche = 1, etaAdaptif=etaAdaptif, k=k, fichierReps = dataTrainFile)
+
                 print("LVQ cree")
-            trainInput, trainOutput = getES(dataTrainFile)
             print("Got train In")
 
             boolAjoutBruit = False
             if ajoutBruit == "True":
                 boolAjoutBruit = True
-            app.lvq.entraine(trainInput, trainOutput)
+            #app.lvq.entraine(trainInput[:k * len(sorties_desire)], trainOutput[:k * len(sorties_desire)], varierEta=False, ajoutDeDonnees=False)
+            app.lvq.entraine(trainInput, trainOutput, varierEta=etaAdaptif, ajoutDeDonnees=boolAjoutBruit)
+
             print("training DONE")
 
             if dataVCFile is not None:
@@ -162,7 +161,8 @@ def startTraining():
         status["status"] = "FAIL"
 
     traceback.print_exc()
-    
+
+    print("performance :", app.lvq.performance )    
     return json.dumps(status)
 
 @app.route('/open_lvq',methods=['POST'])
@@ -172,7 +172,7 @@ def openLVQ():
         print(request.files)
         status = {}
         status["status"] = "OK"
-
+ 
         try:
             if 'lvqFile' in request.files:
                 file = request.files["lvqFile"]
@@ -182,13 +182,12 @@ def openLVQ():
 
                 app.lvq = LVQ(fichier_lvq=lvqFile)
                 sortiesPotentielle = ""
-                for key, val in app.lvq.sortiesPotentielle.items():
-                    print("'"+key + "'" + ":" + str(val) + "\n")
-                    sortiesPotentielle += ("'"+key + "'" + ":" + str(val) + ",\n")
-                status["sortiesPotentielle"] = sortiesPotentielle
+
+                status["sortiesPotentielle"] = app.lvq.sortiesPotentielle
                 print("numEntrees ", app.lvq.numEntrees )
                 status["db"] = app.lvq.numEntrees / 26
                 status["eta"] = app.lvq.eta
+                status["k"] = app.lvq.k
             
             print("Done" + sortiesPotentielle)
         except Exception as e:
