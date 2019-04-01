@@ -56,7 +56,7 @@ Vous êtes maintenant prêt à entrainer le LVQ
 
 Pour démarer l'entraimenet, clickez sur le boutton **Entraine**
 
-### La courbe bleu represente la performance avec les données d'entrainement et la courbe rouge represente la performance de la validation croisée. 
+**La courbe bleu represente la performance avec les données d'entrainement et la courbe rouge represente la performance de la validation croisée.**
 
 ### Tester un LVQ (Generalisation)
 
@@ -72,7 +72,7 @@ Si fois que le LVQ à été entrainé, vous pouvez le sauvgarder.
 2. Donnez un nom à ton LVQ
 3. Le fichiez LVQ sera sauvgardé dans ton repertoire de projet dans le dossier : **lvqs_sauvgarde**
 
-### Pour creer un nouveau MLP, vous n'avez qu'a rafraichir la page 
+**Pour creer un nouveau MLP, vous n'avez qu'a rafraichir la page  **
 
 
 ### And coding style tests
