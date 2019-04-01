@@ -79,8 +79,9 @@ def home():
         db = config['DEFAULT']['base_de_donnees']
         eta = config['DEFAULT']['eta']
         classe_sortie = config['DEFAULT']['classe_sortie']
+        k = config['DEFAULT']['k']
         return render_template("index.html", nb_epoche=nb_epoche, db=str(db), 
-                                eta=str(eta), error=error, 
+                                eta=str(eta), error=error, k = str(k),
                                 sorties_potentielles=str(classe_sortie))
     else:
         return "GOT POST REQUETST"
@@ -164,7 +165,7 @@ def startTraining():
 
     traceback.print_exc()
 
-    print("performance :", app.lvq.performance )    
+    #print("performance :", app.lvq.performance )    
     return json.dumps(status)
 
 @app.route('/open_lvq',methods=['POST'])

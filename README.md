@@ -38,6 +38,8 @@ localhost:5000
 ```
 ![](https://media.giphy.com/media/2UwFWYXdqzeMY0Xn79/giphy.gif)
 
+**Pour arreter le programme, allez dans la console et faites ctrl + c**
+
 Vous êtes maintenant prêt à entrainer le LVQ
 
 ## Entrainer un LVQ

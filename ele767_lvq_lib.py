@@ -9,7 +9,6 @@
 ##
 #######################################################
 
-from couche import Couche
 import logging, sys
 import numpy as np
 import random
@@ -21,6 +20,7 @@ from time import time
 
 debug = True
 
+#Définition de la classe du LVQ
 class LVQ(object):
     #Fonction pour l'initilisation des paramètres du LVQ
     def __init__(self, numEntrees = None, 
@@ -28,35 +28,35 @@ class LVQ(object):
                 epoche = 1, etaAdaptif = False, perf_VC = 0.75, 
                 VCin = None, VCout = None, fichier_lvq = None, k = 10, fichierReps = None):   
 
-        self.numEntrees = numEntrees
+        self.numEntrees = numEntrees #Initilisation du nombre d'entrées
         print("# entrees ", self.numEntrees)
 
 
-        self.eta = eta
-        self.etaInit = eta
-        self.sortiesPotentielle = sortiePotentielle
-        self.epoche = epoche
-        self.performance  = np.array([])
-        self.performanceVC = np.array([])
+        self.eta = eta #Initilisation de l'éta
+        self.etaInit = eta #Initilisation de l'éta initiale
+        self.sortiesPotentielle = sortiePotentielle #Initilisation des sorties potentielles
+        self.epoche = epoche #Initilisation du nombre d'époques
+        self.performance  = np.array([]) #Initilisation du matrice de la performance
+        self.performanceVC = np.array([]) #Initilisation du matrice de la performance du VC
 
-        self.etaAdaptif = etaAdaptif   
+        self.etaAdaptif = etaAdaptif    #Initilisation du éta adaptif
 
         self.couches = [] #Creer une liste de toute les couches du MLP, commencant par les couches cachees,
                           #et terminant par la couche de sortie.
 
-        self.perf_VC = 0
-        self.perf_ENT = 0
+        self.perf_VC = 0 #Initilisation de la performance du VC à 0
+        self.perf_ENT = 0 #Initilisation de la performance de l'entrainement à 0
 
-        self.VCin = VCin
-        self.VCout = VCout
+        self.VCin = VCin #Initilisation des entrées du VC
+        self.VCout = VCout #Initilisation des sorties du VC
         
-        self.totalNumEpoche = 0
+        self.totalNumEpoche = 0 #Initilisation du nombre d'époques
         print("num Entrees = ", numEntrees)
 
-        self.k = k
+        self.k = k #Initilisation du nombre de prototype
 
         if fichier_lvq is not None:
-            seuilsArray = []
+            seuilsArray = [] #Initilisation de la matrice des seuils
             with open(fichier_lvq,'r') as f:
                 data = f.read().replace(" ", "").lower()  #On enleve tout les espaces pour eviter d'avoir une erreur
 
@@ -84,7 +84,7 @@ class LVQ(object):
                         print("s_Pot = ",self.sortiesPotentielle)
                     elif key == "matrice_de_representants":
                         self.matriceRep = np.fromstring(value,dtype=np.float64, sep=",").reshape(self.k * len(self.sortiesPotentielle), self.numEntrees)
-                        print("m_rep = ", self.matriceRep)
+                        #print("m_rep = ", self.matriceRep)
         else:
             self.matriceRep = np.empty((k*len(self.sortiesPotentielle), numEntrees))
             self.creerProto(fichierReps)
@@ -207,7 +207,8 @@ class LVQ(object):
 
 
 
-    def exporterLVQ(self, fichier):
+    def exporterLVQ(self, fichier):  
+        #Cette fonction sauvgarde les données pertinantes pour le réouvrir
         print("EXPORTING !!" )
         repertoire = os.path.dirname(fichier)
         if not os.path.exists(repertoire):
@@ -216,7 +217,7 @@ class LVQ(object):
         f.write("Nb_entrees= %d\n" % (self.numEntrees))
         f.write("k= %s\n" % (str(self.k)))
         f.write("eta= %s\n" % (str(self.etaInit)))
-        f.write("sortiesPotentielles= %s\n" % (str(self.sortiesPotentielle)))
+        f.write("sortiesPotentielles= %s\n" % (str(self.sortiesPotentielle).replace("\n", " ").replace("[","").replace("]", "")))
         np.set_printoptions(threshold = np.prod(self.matriceRep.shape))
         f.write("matrice_de_representants= %s\n" % (np.array2string(self.matriceRep.ravel(), separator = ",").replace("\n", " ").replace("[","").replace("]", "")))
         #print(str(self.matriceRep.ravel()))
