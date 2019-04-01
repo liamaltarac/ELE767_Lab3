@@ -67,7 +67,7 @@ Pour démarer l'entraimenet, clickez sur le boutton **Entraine**
 
 ## Sauvgarder un LVQ
 
-Si fois que le LVQ à été entrainé, vous pouvez le sauvgarder.
+Une fois que le LVQ à été entrainé, vous pouvez le sauvgarder.
 
 1. Clicker sur la disquette
 2. Donnez un nom à ton LVQ
