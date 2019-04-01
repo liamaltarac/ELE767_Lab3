@@ -1,7 +1,5 @@
 # ELE767 Lab 3 : LVQ 
 
-One Paragraph of project description goes here
-
 ## Comment utiliser
 
 Ces instructions vous permeterons d'obtenir une copie du projet et de la rouler sur votre machine. 
