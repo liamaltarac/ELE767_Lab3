@@ -12,6 +12,8 @@ import configparser
 import time
 import traceback
 
+import sys
+
 #######################################################
 ##  Fichier : main.py
 ##  Auteurs : G. Cavero , L. Frija, S. Mohammed
@@ -256,7 +258,10 @@ def testLVQ():
                     testOut = np.append(testOut, ["Echantillon " + str(i) + " : " + lvq_out[i]])
                 #print(testOut)
 
+                np.set_printoptions(threshold=sys.maxsize)   
+
                 status["status"] = "Fin du test"
+                print(np.vstack(testOut))
                 status["lvq_out"] = str(np.vstack(testOut))
                 print(perf)
                 status["perf"] = perf

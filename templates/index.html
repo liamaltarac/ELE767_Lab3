@@ -168,9 +168,20 @@
 										</div>
 									</div>
 							</div>
+							<div class="form-row align-items-baseline">
+									<div class="col-sm-2 ">
 							<label class="form-check-label" for="k" >
 									k
 								</label>
+								</div>
+							
+								<div class="col-sm-2 ">
+										<label class="form-check-label" for="timeout" >
+												tMax (s)
+											</label>
+											</div>
+							
+							</div>
 							<div class="form-row align-items-baseline">
 									<div class="col-sm-2 ">
 
@@ -179,6 +190,17 @@
 													<input id="k" name="k" type=number class="form-control form-control-sm", step="1">
 													<script>
 															document.getElementById("k").value = "{{k|default('NONE')}}"
+															</script>
+											</div>
+										</div>
+
+																	<div class="col-sm-2 ">
+
+											<div class="col-auto-1 mb-2 pr-2" style = " border-right: 1px dashed #333;">
+				
+													<input id="timeout" name="timeout" type=number class="form-control form-control-sm", step="1">
+													<script>
+															document.getElementById("timeout").value = "{{timeout|default('NONE')}}"
 															</script>
 											</div>
 										</div>
@@ -325,6 +347,9 @@
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 	<script>
 
+var startTrainingTime ;
+
+
 			//Si l'utilisateur click sur le boutton TEST
 					$('#formTest').submit(function(event) {
 							event.preventDefault();
@@ -396,6 +421,8 @@
 						var ajoutBruit;
 					var epocheCounter = 0;
 
+					var trainingTime = 0;
+
 					function TrainLVQ(){
 
 
@@ -424,7 +451,7 @@
 							}
 
 							var start_time = new Date().getTime();
-
+							
 
 										$.ajax({
 															type: 'POST',
@@ -443,8 +470,8 @@
 																eta = responseDict["eta"]
 																if (status == "OK"){
 																	document.getElementById("messageBox").value += "\rEpoche " + epocheCounter + "eta = " + eta + " : (" + request_time + "sec)";
-																	document.getElementById("messageBox").value += "\n\tPerformance avec donées de test : " +  testPerf[testPerf.length - 1]
-																	document.getElementById("messageBox").value += "\n\tPerformance avec donées de VC   : " +  vcPerf[vcPerf.length - 1] + "\n"
+																	document.getElementById("messageBox").value += "\n\tPerformance avec data train : " +  testPerf[testPerf.length - 1]
+																	document.getElementById("messageBox").value += "\n\tPerformance avec data VC   : " +  vcPerf[vcPerf.length - 1] + "\n"
 																	var textarea = document.getElementById('messageBox');
 																	textarea.scrollTop = textarea.scrollHeight;
 
@@ -471,6 +498,10 @@
 							event.preventDefault();
 
 							document.getElementById("trainBtn").disabled = true;
+							
+							startTrainingTime = new Date().getTime() ;
+							console.log("Start traingn " + startTrainingTime);
+
 
 							data_entrain = document.getElementById('dataTrain').value;
 							data_vc = document.getElementById('dataVC').value;
@@ -492,6 +523,7 @@
 							});
 
 						function Plot(nb_epoche, performance){
+
 								console.log(epocheCounter)
 									epocheArray.push(epocheCounter);
 									console.log(testPerf)
@@ -500,8 +532,22 @@
   								board.create('curve', [epocheArray, vcPerf], {dash:0, strokeColor:'red',strokeWidth:2});
 
 								if (epocheCounter < nb_epoche-1){
-									TrainLVQ();
-									epocheCounter++;
+									var maxTime = document.getElementById("timeout").value;
+									if (maxTime == ""){
+										maxTime = Infinity;
+									}
+									console.log((new Date().getTime() - startTrainingTime) / 1000)
+									console.log(maxTime);
+									console.log(startTrainingTime/1000)
+									if(((new Date().getTime() - startTrainingTime) / 1000) < maxTime){
+										TrainLVQ();
+										epocheCounter++;
+									}
+
+									else{
+										document.getElementById("messageBox").value += "\n\t !! TIMEOOUT !! Fin d'entrainement \n"
+										document.getElementById("trainBtn").disabled = false;
+									}
 
 								}
 								else{

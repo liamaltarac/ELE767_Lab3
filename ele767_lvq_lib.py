@@ -1,16 +1,14 @@
 #######################################################
-##  Fichier : ELE767_mlp_lib.py
+##  Fichier : ELE767_lvq_lib.py
 ##  Auteurs : G. Cavero , L. Frija, S. Mohammed
-##  Date de creation : 25 Fev 2019          
+##  Date de creation : 20 Mars 2019          
 ##  Description : Ce fichier contient toutes les
 ##                fonctions qui servent a entrainner  
-##                un RN MLP comme on a vu en classe
+##                un RN LVQ comme on a vu en classe
 ##
 ##
 #######################################################
 
-
-#from couche2 import Couche
 from couche import Couche
 import logging, sys
 import numpy as np
@@ -18,11 +16,13 @@ import random
 import re
 import os
 from scipy.spatial import distance
+
+from time import time
+
 debug = True
 
-
 class LVQ(object):
-    
+    #Fonction pour l'initilisation des paramètres du LVQ
     def __init__(self, numEntrees = None, 
                 eta = 0.1, sortiePotentielle = None, 
                 epoche = 1, etaAdaptif = False, perf_VC = 0.75, 
@@ -62,12 +62,10 @@ class LVQ(object):
 
             for line in data.split("\n"):
                 if len(line) > 1:
-                    #print("Part 1 ", line)
 
                     key = line.split("=")[0]
 
                     value = line.split("=")[1]
-                    #print(key)
                     if key == "k":
                         self.k = eval(value)
                         print("K = ", k)
@@ -90,12 +88,9 @@ class LVQ(object):
         else:
             self.matriceRep = np.empty((k*len(self.sortiesPotentielle), numEntrees))
             self.creerProto(fichierReps)
-        
         self.maxEpoch = 20
 
-        
-
-
+    #Fonction pour saisir et créer la matrice des prototypes
     def creerProto(self, fichier):
         f = open(fichier, 'r')
         data = f.read()
@@ -124,7 +119,7 @@ class LVQ(object):
 
         return entrees, sorties
 
-       
+    #Fonction pour exécuter l'entrainement
     def entraine(self, entree, sortieDesire, ajoutDeDonnees = False, varierEta = False):
         #Premieremnt, nous allons tester si les tableaux entree et sortieDesire contienent des sous tableaux
         #sinon, on les force dans un tableau
@@ -135,7 +130,7 @@ class LVQ(object):
         print(entree)
         print("matric de rep : " , self.matriceRep)
 
-        if ajoutDeDonnees:
+        if ajoutDeDonnees:  
             entreeNoisy = self.ajoutDeBruit(entree)
             entree = np.concatenate((entree, entreeNoisy))
             sortieDesire = np.concatenate((sortieDesire, sortieDesire))
@@ -220,12 +215,12 @@ class LVQ(object):
         f=open(fichier, "w+")
         f.write("Nb_entrees= %d\n" % (self.numEntrees))
         f.write("k= %s\n" % (str(self.k)))
-        f.write("eta= %s" % (str(self.etaInit)))
+        f.write("eta= %s\n" % (str(self.etaInit)))
         f.write("sortiesPotentielles= %s\n" % (str(self.sortiesPotentielle)))
         np.set_printoptions(threshold = np.prod(self.matriceRep.shape))
         f.write("matrice_de_representants= %s\n" % (np.array2string(self.matriceRep.ravel(), separator = ",").replace("\n", " ").replace("[","").replace("]", "")))
         #print(str(self.matriceRep.ravel()))
-        np.set_printoptions(threshold = 1000)
+        np.set_printoptions(threshold = (1000,1000))
 
         f.close()
     
