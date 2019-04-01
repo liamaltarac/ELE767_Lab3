@@ -17,15 +17,28 @@ Voici une liste des dépendances à obtenir avant de lancer le programme
 * Une connection internet pour l'interface.
 
 
-### Installing
+### Installation
 
-A step by step series of examples that tell you how to get a development env running
+Voici les étapes détaillés à suivre pour installer et lancer le programme
 
-Say what the step will be
+Dans votre ligne de commande, entrez : 
 
 ```
-Give the example
+git clone https://github.com/liamaltarac/ELE767_Lab3.git
 ```
+
+Une fois telechargé, entrez dans le repertoire du projet et ecrivez dans votre terminal : 
+
+```
+python main.py
+```
+
+Ensuite, dans un navigateur web, allez à l'addresse 
+
+```
+localhost:5000
+```
+
 
 And repeat
 
