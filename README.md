@@ -49,7 +49,7 @@ Vous êtes maintenant prêt à entrainer le LVQ
 5. Spécifiez le **Nombre d'époches** à faire pour l'entrainement
 6. Spécifiez la **Classe de l’unité de sortie**
 7. Spécifiez le **k**
-8. Spécifiez le **temps maximal** en secondes. Si le temps d'entrainent dépasse **tMax**, le programme arrête l'entrainement
+8. Spécifiez le **temps maximal** en secondes. Si le temps d'entrainent dépasse **tMax**, le programme arrête l'entrainement. Si vide, **tMax = infini**
 9. Si vous voulez variez le **Taux d'apprentissage (n)**  à chaque époches, cochez **η adaptif**.
 10. Si vous voulez doubler le nombre de données d'entrainement en ajoutant du bruit au données qui nous on était fournit, cochez **Ajout de bruit**  
 
