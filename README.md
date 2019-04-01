@@ -1,4 +1,4 @@
-# Lab 3 : LVQ
+# ELE767 Lab 3 : LVQ 
 
 One Paragraph of project description goes here
 
@@ -72,47 +72,17 @@ Si fois que le LVQ à été entrainé, vous pouvez le sauvgarder.
 2. Donnez un nom à ton LVQ
 3. Le fichiez LVQ sera sauvgardé dans ton repertoire de projet dans le dossier : **lvqs_sauvgarde**
 
-**Pour creer un nouveau MLP, vous n'avez qu'a rafraichir la page  **
+### Ouvrir un LVQ
+
+1. Clicker sur l'envloppe
+2. Dans le dossier : **lvqs_sauvgarde**, choisisez voitre fichier texte contenant le LVQ
+3. Vous pouvez maintenant continuer l'entrainement de votre LVQ et le tester.
 
 
-### And coding style tests
+**Pour creer un nouveau MLP, vous n'avez qu'a rafraichir la page**
 
-Explain what these tests test and why
+## Autheurs
 
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
-## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* **Gabriella Cavero Linares**
+* **Liam Frija-Altarac**
+* **Saddat Mohammad**
