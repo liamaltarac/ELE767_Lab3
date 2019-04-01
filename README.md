@@ -54,15 +54,26 @@ Vous êtes maintenant prêt à entrainer le LVQ
 9. Si vous voulez variez le **Taux d'apprentissage (n)**  à chaque époches, cochez **η adaptif**.
 10. Si vous voulez doubler le nombre de données d'entrainement en ajoutant du bruit au données qui nous on était fournit, cochez **Ajout de bruit**  
 
-Explain how to run the automated tests for this system
+Pour démarer l'entraimenet, clickez sur le boutton **Entraine**
 
-### Break down into end to end tests
+##### La courbe bleu represente la performance avec les données d'entrainement et la courbe rouge represente la performance de la validation croisée. 
 
-Explain what these tests test and why
+### Tester un LVQ (Generalisation)
 
-```
-Give an example
-```
+1. Clickez sur **Data Test** pour selectionner votre fichier texte contenant les données à utiliser pour le test
+2. Clickez sur le boutton test pour démarer le test.
+3. Une fois completé, les résulats de test ainsi que la performance devrait apparaître dans la boite à message
+
+### Sauvgarder un LVQ
+
+Si fois que le LVQ à été entrainé, vous pouvez le sauvgarder.
+
+1. Clicker sur la disquette
+2. Donnez un nom à ton LVQ
+3. Le fichiez LVQ sera sauvgardé dans ton repertoire de projet dans le dossier : **lvqs_sauvgarde**
+
+##### Pour creer un nouveau MLP, vous n'avez qu'a rafraichir la page ***
+
 
 ### And coding style tests
 
