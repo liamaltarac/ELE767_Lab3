@@ -39,16 +39,20 @@ Ensuite, dans un navigateur web, allez à l'addresse
 localhost:5000
 ```
 
+Vous êtes maintenant prêt à entrainer le LVQ
 
-And repeat
+## Entrainer un LVQ
 
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
+1. Clickez sur **Data Entraine** pour selectionner votre fichier texte contenant les données à utiliser pour l'apprentissage
+2. Clickez sur **Data VC** pour selectionner votre fichier texte contenant les données à utiliser pour la validation croisé
+3. Spécifiez votre **Taux d'apprentissage (η)** 
+4. Spécifiez votre **Set de donnée** 
+5. Spécifiez le **Nombre d'époches** à faire pour l'entrainement
+6. Spécifiez la **Classe de l’unité de sortie**
+7. Spécifiez le **k**
+8. Spécifiez le **temps maximal** en secondes. Si le temps d'entrainent dépasse **tMax**, le programme arrête l'entrainement
+9. Si vous voulez variez le **Taux d'apprentissage (n)**  à chaque époches, cochez **η adaptif**.
+10. Si vous voulez doubler le nombre de données d'entrainement en ajoutant du bruit au données qui nous on était fournit, cochez **Ajout de bruit**  
 
 Explain how to run the automated tests for this system
 
