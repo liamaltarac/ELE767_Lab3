@@ -36,6 +36,7 @@ Ensuite, dans un navigateur web, allez à l'addresse
 ```
 localhost:5000
 ```
+![](https://media.giphy.com/media/2UwFWYXdqzeMY0Xn79/giphy.gif)
 
 Vous êtes maintenant prêt à entrainer le LVQ
 
