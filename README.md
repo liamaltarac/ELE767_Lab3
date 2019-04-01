@@ -57,13 +57,13 @@ Pour démarer l'entraimenet, clickez sur le boutton **Entraine**
 
 **La courbe bleu represente la performance avec les données d'entrainement et la courbe rouge represente la performance de la validation croisée.**
 
-### Tester un LVQ (Generalisation)
+## Tester un LVQ (Generalisation)
 
 1. Clickez sur **Data Test** pour selectionner votre fichier texte contenant les données à utiliser pour le test
 2. Clickez sur le boutton test pour démarer le test.
 3. Une fois completé, les résulats de test ainsi que la performance devrait apparaître dans la boite à message
 
-### Sauvgarder un LVQ
+## Sauvgarder un LVQ
 
 Si fois que le LVQ à été entrainé, vous pouvez le sauvgarder.
 
@@ -71,7 +71,7 @@ Si fois que le LVQ à été entrainé, vous pouvez le sauvgarder.
 2. Donnez un nom à ton LVQ
 3. Le fichiez LVQ sera sauvgardé dans ton repertoire de projet dans le dossier : **lvqs_sauvgarde**
 
-### Ouvrir un LVQ
+## Ouvrir un LVQ
 
 1. Clicker sur l'envloppe
 2. Dans le dossier : **lvqs_sauvgarde**, choisisez voitre fichier texte contenant le LVQ
