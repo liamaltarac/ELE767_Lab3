@@ -1,18 +1,21 @@
-# Project Title
+# Lab 3 : LVQ
 
 One Paragraph of project description goes here
 
-## Getting Started
+## Comment utiliser
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+Ces instructions vous permeterons d'obtenir une copie du projet et de la rouler sur votre machine. 
 
-### Prerequisites
+### Prerequis
 
-What things you need to install the software and how to install them
+Voici une liste des dépendances à obtenir avant de lancer le programme
 
-```
-Give examples
-```
+* **Python 3** 
+* **scipy** (pip install scipy)
+* **numpy** (pip install numpy)
+* **Flask** (pip install flask)
+* Une connection internet pour l'interface.
+
 
 ### Installing
 
